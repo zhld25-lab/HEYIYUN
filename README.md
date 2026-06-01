@@ -56,16 +56,28 @@ docker compose up -d --build
 
 ## 6. 手动运行后端
 
+前置条件：本地有一个运行中的 PostgreSQL，并存在与 `.env` 一致的数据库和用户。
+例如（仅首次需要）：
+
+```bash
+createdb power_engineering_erp
+psql -c "CREATE USER erp_user WITH PASSWORD 'erp_password';"
+psql -c "ALTER DATABASE power_engineering_erp OWNER TO erp_user;"
+```
+
+启动后端：
+
 ```bash
 cd backend
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-# 配置数据库连接（默认连接本地 PostgreSQL）
-export POSTGRES_HOST=localhost
+# 指向本地 PostgreSQL（默认值见 app/core/config.py）
+export POSTGRES_HOST=localhost POSTGRES_USER=erp_user POSTGRES_PASSWORD=erp_password POSTGRES_DB=power_engineering_erp
 uvicorn app.main:app --reload --port 8000
 ```
 
-启动时自动初始化数据库与种子数据。也可手动执行：`python -m app.db.init_db`。
+启动时会自动建表并填充种子数据（也可手动执行 `python -m app.db.init_db`）。
+若未设置 `SECRET_KEY`，将使用 `config.py` 中的开发默认值，生产环境务必覆盖。
 
 ## 7. 手动运行前端
 
