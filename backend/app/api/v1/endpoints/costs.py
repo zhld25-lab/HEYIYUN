@@ -4,15 +4,19 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.orm import Session
 
 from app.core.deps import require_permission
-from app.core.permissions import PERM_CONTRACT_VIEW, PERM_FINANCE_DELETE, PERM_FINANCE_EDIT
+from app.core.permissions import (
+    PERM_CONTRACT_VIEW, PERM_FINANCE_DELETE, PERM_FINANCE_EDIT,
+    PERM_WORKFLOW_CREATE,
+)
 from app.crud.crud_finance import CRUDFinance
 from app.db.session import get_db
 from app.models.cost_record import CostRecord
 from app.models.user import User
 from app.schemas.common import PageData, ResponseModel
 from app.schemas.cost import CostCreate, CostOut, CostUpdate
-from app.services import audit_service, finance_service
+from app.services import audit_service, finance_service, workflow_service
 from app.services.permission_service import mask_finance_dict
+from app.api.v1.endpoints.workflows import _wf_dict
 
 router = APIRouter(prefix="/costs", tags=["costs"])
 crud = CRUDFinance(CostRecord, "cost_code")
@@ -131,3 +135,27 @@ def delete_cost(
     audit_service.record(db, user=current_user, action="DELETE", resource_type=RESOURCE, resource_id=cost_id,
                          detail={"cost_code": code}, ip_address=_ip(request))
     return ResponseModel(message="成本记录删除成功")
+
+@router.post("/{cost_id}/submit-approval")
+def cost_submit_approval(
+    cost_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission(PERM_WORKFLOW_CREATE)),
+):
+    obj = crud.get(db, cost_id)
+    if not obj:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="成本记录不存在")
+    wf = workflow_service.create_workflow(
+        db,
+        business_type="cost",
+        business_id=cost_id,
+        title=f"成本审批 - {obj.cost_code}",
+        workflow_type="成本审批",
+        initiator=current_user,
+        project_id=obj.project_id,
+    )
+    workflow_service.submit_workflow(db, wf.id, current_user)
+    db.commit()
+    db.refresh(wf)
+    return {"code": 0, "message": "success", "data": _wf_dict(wf)}
+

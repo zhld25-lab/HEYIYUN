@@ -15,6 +15,8 @@ from app.core.permissions import (
     PERM_PROJECT_DELETE,
     PERM_PROJECT_UPDATE,
     PERM_PROJECT_VIEW,
+    PERM_WORKFLOW_CREATE,
+    PERM_WORKFLOW_VIEW,
 )
 from app.crud.crud_finance import CRUDFinance
 from app.crud.crud_project import crud_project
@@ -33,8 +35,9 @@ from app.schemas.invoice import InvoiceOut
 from app.schemas.payment import PaymentOut
 from app.schemas.project import ProjectCreate, ProjectOut, ProjectUpdate
 from app.schemas.receipt import ReceiptOut
-from app.services import audit_service, finance_service, project_service
+from app.services import audit_service, finance_service, project_service, workflow_service
 from app.services.permission_service import mask_finance_dict, mask_project_dict
+from app.api.v1.endpoints.workflows import _wf_dict
 
 router = APIRouter(prefix="/projects", tags=["projects"])
 
@@ -222,6 +225,40 @@ def project_finance_summary(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="项目不存在")
     summary = mask_finance_dict(summary, current_user)
     return ResponseModel(data=ProjectFinanceSummary.model_validate(summary))
+
+
+@router.get("/{project_id}/workflows")
+def project_workflows(
+    project_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission(PERM_WORKFLOW_VIEW)),
+):
+    wfs = workflow_service.get_workflows_by_project(db, project_id)
+    return {"code": 0, "message": "success", "data": [_wf_dict(w, include_steps=True) for w in wfs]}
+
+
+@router.post("/{project_id}/submit-approval")
+def project_submit_approval(
+    project_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission(PERM_WORKFLOW_CREATE)),
+):
+    project = crud_project.get(db, project_id)
+    if not project:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="项目不存在")
+    wf = workflow_service.create_workflow(
+        db,
+        business_type="project",
+        business_id=project_id,
+        title=f"项目立项审批 - {project.project_name}",
+        workflow_type="项目立项审批",
+        initiator=current_user,
+        project_id=project_id,
+    )
+    workflow_service.submit_workflow(db, wf.id, current_user)
+    db.commit()
+    db.refresh(wf)
+    return {"code": 0, "message": "success", "data": _wf_dict(wf)}
 
 
 @router.delete("/{project_id}", response_model=ResponseModel[None])

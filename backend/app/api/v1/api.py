@@ -13,6 +13,7 @@ from app.api.v1.endpoints import (
     receipts,
     system,
     users,
+    workflows,
 )
 
 api_router = APIRouter()
@@ -26,3 +27,4 @@ api_router.include_router(receipts.router)
 api_router.include_router(invoices.router)
 api_router.include_router(dashboard.router)
 api_router.include_router(system.router)
+api_router.include_router(workflows.router)

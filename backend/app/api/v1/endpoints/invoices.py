@@ -4,15 +4,19 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.orm import Session
 
 from app.core.deps import require_permission
-from app.core.permissions import PERM_CONTRACT_VIEW, PERM_FINANCE_DELETE, PERM_FINANCE_EDIT
+from app.core.permissions import (
+    PERM_CONTRACT_VIEW, PERM_FINANCE_DELETE, PERM_FINANCE_EDIT,
+    PERM_WORKFLOW_CREATE,
+)
 from app.crud.crud_finance import CRUDFinance
 from app.db.session import get_db
 from app.models.invoice import Invoice
 from app.models.user import User
 from app.schemas.common import PageData, ResponseModel
 from app.schemas.invoice import InvoiceCreate, InvoiceOut, InvoiceUpdate
-from app.services import audit_service, finance_service
+from app.services import audit_service, finance_service, workflow_service
 from app.services.permission_service import mask_finance_dict
+from app.api.v1.endpoints.workflows import _wf_dict
 
 router = APIRouter(prefix="/invoices", tags=["invoices"])
 crud = CRUDFinance(Invoice, "invoice_code")
@@ -125,3 +129,27 @@ def delete_invoice(
     audit_service.record(db, user=current_user, action="DELETE", resource_type=RESOURCE, resource_id=invoice_id,
                          detail={"invoice_code": code}, ip_address=_ip(request))
     return ResponseModel(message="发票记录删除成功")
+
+@router.post("/{invoice_id}/submit-approval")
+def invoice_submit_approval(
+    invoice_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission(PERM_WORKFLOW_CREATE)),
+):
+    obj = crud.get(db, invoice_id)
+    if not obj:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="发票记录不存在")
+    wf = workflow_service.create_workflow(
+        db,
+        business_type="invoice",
+        business_id=invoice_id,
+        title=f"发票审批 - {obj.invoice_code}",
+        workflow_type="发票审批",
+        initiator=current_user,
+        project_id=obj.project_id,
+    )
+    workflow_service.submit_workflow(db, wf.id, current_user)
+    db.commit()
+    db.refresh(wf)
+    return {"code": 0, "message": "success", "data": _wf_dict(wf)}
+

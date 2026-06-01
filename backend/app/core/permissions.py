@@ -28,6 +28,11 @@ PERM_CONTRACT_DELETE = "contract:delete"
 PERM_FINANCE_EDIT = "finance:edit"      # create + update finance records
 PERM_FINANCE_DELETE = "finance:delete"  # delete finance records
 
+# Workflow
+PERM_WORKFLOW_VIEW = "workflow:view"
+PERM_WORKFLOW_CREATE = "workflow:create"
+PERM_WORKFLOW_APPROVE = "workflow:approve"
+
 # System administration
 PERM_AUDIT_VIEW = "audit:view"
 PERM_USER_VIEW = "user:view"
@@ -47,6 +52,9 @@ ALL_PERMISSIONS: list[tuple[str, str, str]] = [
     (PERM_CONTRACT_DELETE, "删除合同", "contract"),
     (PERM_FINANCE_EDIT, "编辑财务记录", "finance"),
     (PERM_FINANCE_DELETE, "删除财务记录", "finance"),
+    (PERM_WORKFLOW_VIEW, "查看审批流程", "workflow"),
+    (PERM_WORKFLOW_CREATE, "提交审批流程", "workflow"),
+    (PERM_WORKFLOW_APPROVE, "审批/处理流程", "workflow"),
     (PERM_AUDIT_VIEW, "查看操作日志", "system"),
     (PERM_USER_VIEW, "查看用户", "system"),
     (PERM_SYSTEM_MANAGE, "系统管理", "system"),
@@ -82,24 +90,25 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
         PERM_CONTRACT_DELETE,
         PERM_FINANCE_EDIT,
         PERM_FINANCE_DELETE,
+        PERM_WORKFLOW_VIEW,
+        PERM_WORKFLOW_APPROVE,
     ],
     "project_manager": [
         PERM_DASHBOARD_VIEW,
         PERM_PROJECT_VIEW,
         PERM_PROJECT_CREATE,
         PERM_PROJECT_UPDATE,
-        # PM can view amounts and maintain contract/finance records,
-        # but cannot delete financial data.
         PERM_FINANCE_VIEW,
         PERM_CONTRACT_VIEW,
         PERM_CONTRACT_CREATE,
         PERM_CONTRACT_UPDATE,
         PERM_FINANCE_EDIT,
+        PERM_WORKFLOW_VIEW,
+        PERM_WORKFLOW_CREATE,
+        PERM_WORKFLOW_APPROVE,
     ],
-    # View-only roles may browse contract/finance modules, but amounts are
-    # masked (no finance:view) and they cannot create/edit/delete.
-    "safety": [PERM_DASHBOARD_VIEW, PERM_PROJECT_VIEW, PERM_CONTRACT_VIEW],
-    "quality": [PERM_DASHBOARD_VIEW, PERM_PROJECT_VIEW, PERM_CONTRACT_VIEW],
-    "document": [PERM_DASHBOARD_VIEW, PERM_PROJECT_VIEW, PERM_CONTRACT_VIEW],
-    "staff": [PERM_DASHBOARD_VIEW, PERM_PROJECT_VIEW, PERM_CONTRACT_VIEW],
+    "safety": [PERM_DASHBOARD_VIEW, PERM_PROJECT_VIEW, PERM_CONTRACT_VIEW, PERM_WORKFLOW_VIEW],
+    "quality": [PERM_DASHBOARD_VIEW, PERM_PROJECT_VIEW, PERM_CONTRACT_VIEW, PERM_WORKFLOW_VIEW],
+    "document": [PERM_DASHBOARD_VIEW, PERM_PROJECT_VIEW, PERM_CONTRACT_VIEW, PERM_WORKFLOW_VIEW],
+    "staff": [PERM_DASHBOARD_VIEW, PERM_PROJECT_VIEW, PERM_CONTRACT_VIEW, PERM_WORKFLOW_VIEW],
 }

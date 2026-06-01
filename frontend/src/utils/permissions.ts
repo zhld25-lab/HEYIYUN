@@ -16,6 +16,9 @@ export const PERMISSIONS = {
   AUDIT_VIEW: 'audit:view',
   USER_VIEW: 'user:view',
   SYSTEM_MANAGE: 'system:manage',
+  WORKFLOW_VIEW: 'workflow:view',
+  WORKFLOW_CREATE: 'workflow:create',
+  WORKFLOW_APPROVE: 'workflow:approve',
 } as const;
 
 export function hasPermission(user: User | null, code: string): boolean {

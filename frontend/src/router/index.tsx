@@ -11,6 +11,7 @@ import ProjectDetail from '@/pages/ProjectCenter/ProjectDetail';
 import ContractList from '@/pages/ContractCenter/ContractList';
 import ContractDetail from '@/pages/ContractCenter/ContractDetail';
 import CostFinanceCenter from '@/pages/CostFinanceCenter';
+import WorkflowCenter from '@/pages/WorkflowCenter';
 import SystemSettings from '@/pages/SystemSettings';
 
 export const router = createBrowserRouter([
@@ -33,6 +34,7 @@ export const router = createBrowserRouter([
       { path: 'contracts', element: <ContractList /> },
       { path: 'contracts/:id', element: <ContractDetail /> },
       { path: 'finance', element: <CostFinanceCenter /> },
+      { path: 'workflows', element: <WorkflowCenter /> },
       { path: 'system', element: <SystemSettings /> },
     ],
   },

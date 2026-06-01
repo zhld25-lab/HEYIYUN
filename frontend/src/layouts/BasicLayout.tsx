@@ -9,6 +9,7 @@ import {
   UserOutlined,
   FileTextOutlined,
   AccountBookOutlined,
+  AuditOutlined,
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
@@ -22,6 +23,7 @@ const MENU_ITEMS = [
   { key: '/projects', icon: <ProjectOutlined />, label: '项目中心' },
   { key: '/contracts', icon: <FileTextOutlined />, label: '合同中心' },
   { key: '/finance', icon: <AccountBookOutlined />, label: '成本资金中心' },
+  { key: '/workflows', icon: <AuditOutlined />, label: '审批中心' },
   { key: '/system', icon: <SettingOutlined />, label: '系统设置' },
 ];
 
@@ -32,6 +34,7 @@ const BREADCRUMB_MAP: Record<string, string> = {
   finance: '成本资金中心',
   create: '新建项目',
   edit: '编辑项目',
+  workflows: '审批中心',
   system: '系统设置',
 };
 

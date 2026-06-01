@@ -4,7 +4,7 @@
 
 面向电力工程企业的全栈项目经营管理系统，围绕项目全生命周期（立项、报装、合同、采购、施工、成本、资金、安全质量、资料、审批、风险预警）开展管理。本仓库由 Streamlit 原型迁移而来，现为前后端分离架构。
 
-> 当前进度：**Phase 1（系统骨架）+ Phase 2（项目中心）** 已完成。
+> 当前进度：**Phase 1（系统骨架）+ Phase 2（项目中心）+ Phase 3（合同/成本资金中心）+ Phase 4A（审批流引擎）** 已完成。
 
 ---
 
@@ -120,6 +120,18 @@ http://localhost:5173
 - 决策驾驶舱：经营 KPI 汇总 + 项目状态分布。
 - 企业级前端布局：深蓝侧边栏、顶部用户/角色/退出、面包屑。
 - Docker Compose 一键运行（postgres / redis / minio / backend / frontend）。
+
+**Phase 4A（审批流引擎）**
+- 审批流引擎：Workflow / WorkflowStep / WorkflowAction 三张表，支持 8 种流程类型（项目立项/合同/付款/成本/发票/结算/采购/报销审批）。
+- 审批动作：提交(submit) / 审批通过(approve) / 驳回(reject) / 撤回(withdraw) / 催办(urge) / 转办(transfer)，多级顺序步骤自动推进。
+- 业务联动：任一审批状态变更自动回写关联业务实体（Contract/CostRecord/Payment/Invoice/Project）的 approval_status 字段。
+- 权限矩阵：workflow:view（所有角色）/ workflow:create（PM 及以上）/ workflow:approve（财务/总经理/管理员/PM）。
+- 快捷提交 API：`POST /projects/{id}/submit-approval`、`/contracts/{id}/submit-approval`、`/payments/{id}/submit-approval`、`/costs/{id}/submit-approval`、`/invoices/{id}/submit-approval`。
+- 前端审批中心：5 个 Tab（我的待办 / 我的已办 / 我的发起 / 全部流程 / 流程配置占位）+ 审批详情 Drawer（Timeline 步骤 + 操作记录 + 审批/驳回/催办/撤回按钮）。
+- 项目详情审批记录 Tab：真实审批流列表 + 提交立项审批按钮。
+- 首页工作台：待办审批卡片、我的发起卡片、超期预警（>7 天未完成）。
+- Alembic 第一个正式迁移版本（包含所有 Phase 1–4A 表结构）。
+- 8 个新增测试（覆盖：创建流程、提交、完整审批通过、驳回、撤回、快捷提交接口、待办/发起查询、权限拦截）；全部 25 个测试通过。
 
 **Phase 3（合同中心 + 成本资金中心 + 业务闭环）**
 - 5 个新业务实体：合同(Contract)、成本(CostRecord)、付款(Payment)、回款(Receipt)、发票(Invoice)，均含软删除与创建/更新人追踪。

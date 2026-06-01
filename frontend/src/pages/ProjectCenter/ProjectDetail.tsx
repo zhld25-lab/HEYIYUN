@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, Tabs, Descriptions, Empty, Table, Spin, Button, Space } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import type { ColumnsType } from 'antd/es/table';
 import { getProject, listProjectAuditLogs } from '@/api/projects';
 import type { AuditLog } from '@/types/project';
+import { getProjectWorkflows, submitProjectApproval, type Workflow } from '@/api/workflows';
 import PageHeader from '@/components/PageHeader';
 import StatusTag from '@/components/StatusTag';
 import RiskTag from '@/components/RiskTag';
@@ -13,6 +14,12 @@ import PermissionGuard from '@/components/PermissionGuard';
 import { PERMISSIONS } from '@/utils/permissions';
 import { formatPercent, formatDate } from '@/utils/formatters';
 import { ContractsPanel, CostFinancePanel } from './ProjectFinancePanels';
+import { WorkflowStatusTag } from '@/pages/WorkflowCenter/WorkflowStatusTag';
+import WorkflowDetailDrawer from '@/pages/WorkflowCenter/WorkflowDetailDrawer';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { message } from 'antd';
+import { useAuthStore } from '@/store/authStore';
+import { hasPermission } from '@/utils/permissions';
 
 const ACTION_LABEL: Record<string, string> = {
   CREATE: '创建',
@@ -28,6 +35,9 @@ const ProjectDetail: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const projectId = Number(id);
+  const { user } = useAuthStore();
+  const qc = useQueryClient();
+  const [selectedWfId, setSelectedWfId] = useState<number | null>(null);
 
   const { data: project, isLoading } = useQuery({
     queryKey: ['project', id],
@@ -38,6 +48,34 @@ const ProjectDetail: React.FC = () => {
     queryKey: ['project-audit', id],
     queryFn: () => listProjectAuditLogs(projectId),
   });
+
+  const { data: workflows } = useQuery({
+    queryKey: ['project-workflows', id],
+    queryFn: () => getProjectWorkflows(projectId),
+  });
+
+  const submitApprovalMut = useMutation({
+    mutationFn: () => submitProjectApproval(projectId),
+    onSuccess: () => {
+      message.success('审批流程已提交');
+      qc.invalidateQueries({ queryKey: ['project-workflows', id] });
+    },
+    onError: (e: any) => message.error(e?.response?.data?.detail || '提交失败'),
+  });
+
+  const wfColumns: ColumnsType<Workflow> = [
+    { title: '流程标题', dataIndex: 'title', ellipsis: true },
+    { title: '类型', dataIndex: 'workflow_type', width: 120 },
+    { title: '状态', dataIndex: 'status', width: 90, render: (v) => <WorkflowStatusTag status={v} /> },
+    { title: '步骤', width: 80, render: (_: any, r: Workflow) => `${r.current_step}/${r.total_steps}` },
+    { title: '提交时间', dataIndex: 'submitted_at', width: 110, render: (v) => v?.slice(0, 10) ?? '-' },
+    {
+      title: '操作', width: 70,
+      render: (_: any, r: Workflow) => (
+        <Button size="small" type="link" onClick={() => setSelectedWfId(r.id)}>详情</Button>
+      ),
+    },
+  ];
 
   const logColumns: ColumnsType<AuditLog> = [
     { title: '时间', dataIndex: 'created_at', render: (v) => formatDate(v) || '-', width: 180 },
@@ -102,7 +140,31 @@ const ProjectDetail: React.FC = () => {
     { key: 'safety', label: '安全质量', children: <Placeholder name="安全质量" /> },
     { key: 'document', label: '资料档案', children: <Placeholder name="资料档案" /> },
     { key: 'risk', label: '风险预警', children: <Placeholder name="风险预警" /> },
-    { key: 'approval', label: '审批记录', children: <Placeholder name="审批记录" /> },
+    {
+      key: 'approval',
+      label: '审批记录',
+      children: (
+        <div>
+          {hasPermission(user, PERMISSIONS.WORKFLOW_CREATE) && (
+            <div style={{ marginBottom: 12 }}>
+              <Button
+                type="primary"
+                onClick={() => submitApprovalMut.mutate()}
+                loading={submitApprovalMut.isPending}
+              >
+                提交立项审批
+              </Button>
+            </div>
+          )}
+          <Table<Workflow>
+            rowKey="id" size="small"
+            dataSource={workflows ?? []}
+            columns={wfColumns}
+            pagination={{ pageSize: 10 }}
+          />
+        </div>
+      ),
+    },
     {
       key: 'audit',
       label: '操作日志',
@@ -137,6 +199,7 @@ const ProjectDetail: React.FC = () => {
       <Card>
         <Tabs items={items} />
       </Card>
+      <WorkflowDetailDrawer workflowId={selectedWfId} onClose={() => setSelectedWfId(null)} />
     </div>
   );
 };
