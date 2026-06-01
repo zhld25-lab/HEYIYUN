@@ -13,4 +13,6 @@ env/
 Thumbs.db
 .streamlit/secrets.toml
 exports/
+frontend/node_modules/
+frontend/dist/
 
