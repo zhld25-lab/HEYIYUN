@@ -1,152 +1,153 @@
-# HEYIYUN
+# 中国电力工程企业项目经营管理平台
 
-中国电力工程企业项目经营管理平台  
-Power Engineering ERP & Project Management Platform
+**Power Engineering ERP & Project Management Platform**
 
-## 项目简介
+面向电力工程企业的全栈项目经营管理系统，围绕项目全生命周期（立项、报装、合同、采购、施工、成本、资金、安全质量、资料、审批、风险预警）开展管理。本仓库由 Streamlit 原型迁移而来，现为前后端分离架构。
 
-HEYIYUN 是一个基于 Streamlit 的电力工程行业 ERP 与项目经营管理系统 Demo，围绕“项目”建立业务主线，覆盖项目立项、供电报装、合同签订、预算/目标成本、材料计划、采购合同、到货入库、施工进度、安全质量检查、工程量确认、变更签证、成本归集、付款/回款、发票、结算、竣工资料和项目复盘。
+> 当前进度：**Phase 1（系统骨架）+ Phase 2（项目中心）+ Phase 3（合同/成本资金中心）+ Phase 4A（审批流引擎）** 已完成。
 
-系统使用模拟数据，仅用于产品原型、学习、作品集、课程设计、业务方案展示和 GitHub 项目展示。
+---
 
-## 行业背景
+## 1. 项目简介
 
-电力工程企业通常同时管理多个配电、输变电、光伏并网、箱变安装、电缆迁改、充电站配套、临时用电和配电房改造项目。项目过程中涉及建设单位、设计、监理、分包、供应商、仓库、施工班组、安全质量和资料归档等多方协同。本 Demo 用 Streamlit 快速模拟一套项目全生命周期经营管理平台。
+- 后端：FastAPI 提供 RESTful API，PostgreSQL 持久化，JWT 认证 + RBAC 权限，操作审计日志。
+- 前端：React + TypeScript 单页应用，Ant Design 企业级 UI，深蓝侧边栏 + 白色卡片内容区。
+- 项目中心：项目 CRUD、列表筛选、企业级立项表单、项目详情、金额按角色脱敏。
 
-## 核心功能
+## 2. 技术栈
 
-- 首页工作台：待办、已办、我的发起、风险提醒、快捷入口。
-- 决策驾驶舱：公司级 KPI、现金流、利润、风险、供应商和分包商排名。
-- 项目中心：项目列表、筛选、项目详情 Tabs、健康度评分。
-- 合同中心：承包、分包、采购、设备租赁、周材租赁合同管理。
-- 采购物资中心：材料计划、采购、到货、入库、出库、库存和价格库。
-- 设备周材中心：设备台账、调度、维修、保养、租赁和结算。
-- 成本资金中心：成本台账、费用报销、付款、回款、发票、资金计划、保证金。
-- 施工现场中心：施工日志、班组、人员进退场、工序、工程量、签证变更。
-- 安全质量中心：安全隐患、质量缺陷、整改复查和闭环。
-- 资料档案中心：全过程资料、完整率、缺失提醒、模拟上传、审核流程。
-- 审批中心：OA/BPM 审批流模拟。
-- 风险预警中心：工期、成本、资金、合同、采购、材料、设备、安全、质量、资料、审批风险。
-- 逻辑图中心：项目生命周期、数据关联和关键业务流程图。
-- 系统设置：用户、角色、权限、组织、菜单、字典、流程和日志模拟。
+| 层 | 技术 |
+|----|------|
+| 前端 | React, TypeScript, Vite, Ant Design, React Router, TanStack Query, Axios, Zustand |
+| 后端 | Python 3.11+, FastAPI, SQLAlchemy 2.x, Pydantic v2, Alembic |
+| 存储 | PostgreSQL, Redis（缓存，后续）, MinIO（文件，占位）|
+| 安全 | JWT, bcrypt, RBAC |
+| DevOps | Docker, Docker Compose |
 
-## 系统截图占位
+## 3. 架构
 
-后续可以在 `docs/images/` 中补充以下截图：
-
-- 首页经营概览截图
-- 决策驾驶舱截图
-- 项目中心详情截图
-- 风险预警中心截图
-- 逻辑图中心截图
-
-## 技术栈
-
-- Python 3.10+
-- Streamlit
-- pandas
-- numpy
-- plotly
-- openpyxl
-- python-dotenv
-
-## 项目结构
-
-```text
-HEYIYUN/
-├── app.py
-├── README.md
-├── requirements.txt
-├── .env.example
-├── config/
-├── data/
-├── services/
-├── components/
-├── pages/
-├── utils/
-├── assets/
-├── docs/
-└── tests/
+```
+frontend/  React SPA（Ant Design）
+backend/   FastAPI（api → services → crud → models）
+infra/     Nginx 反向代理配置
+docs/      架构 / 数据库 / API / 权限 / 迁移文档
+legacy_streamlit/  原 Streamlit 原型（业务参考，不参与运行）
+docker-compose.yml / Makefile / .env.example
 ```
 
-## 安装方法
+详见 `docs/system_architecture.md`。
+
+## 4. 为何保留 legacy_streamlit/
+
+`legacy_streamlit/` 是原 Streamlit 原型，**完整保留作为业务规则、字段定义、页面模块、mock 数据和风险逻辑的参考**，不被覆盖或删除。新模块（合同、成本、审批流、风险引擎等）迁移时以其为蓝本。详见 `docs/migration_from_streamlit.md`。
+
+## 5. 使用 Docker Compose 运行
 
 ```bash
+cp .env.example .env        # 按需修改密码与密钥
+docker compose up -d --build
+```
+
+- 前端：http://localhost:5173
+- 后端 API 文档：http://localhost:8000/docs
+- 后端首次启动会自动建表并填充种子数据。
+
+校验编排配置：`docker compose config` 或 `make compose-config`。
+
+## 6. 手动运行后端
+
+前置条件：本地有一个运行中的 PostgreSQL，并存在与 `.env` 一致的数据库和用户。
+例如（仅首次需要）：
+
+```bash
+createdb power_engineering_erp
+psql -c "CREATE USER erp_user WITH PASSWORD 'erp_password';"
+psql -c "ALTER DATABASE power_engineering_erp OWNER TO erp_user;"
+```
+
+启动后端：
+
+```bash
+cd backend
+python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
+# 指向本地 PostgreSQL（默认值见 app/core/config.py）
+export POSTGRES_HOST=localhost POSTGRES_USER=erp_user POSTGRES_PASSWORD=erp_password POSTGRES_DB=power_engineering_erp
+uvicorn app.main:app --reload --port 8000
 ```
 
-## 运行方法
+启动时会自动建表并填充种子数据（也可手动执行 `python -m app.db.init_db`）。
+若未设置 `SECRET_KEY`，将使用 `config.py` 中的开发默认值，生产环境务必覆盖。
+
+## 7. 手动运行前端
 
 ```bash
-streamlit run app.py
+cd frontend
+npm install
+npm run dev        # http://localhost:5173 （已配置 /api 代理到 8000）
 ```
 
-启动后在浏览器中打开 Streamlit 提示的本地地址。
+## 8. 种子账号与密码
 
-## 页面说明
+| 用户名 | 密码 | 角色 | 金额可见 |
+|--------|------|------|----------|
+| admin | Admin123456 | 系统管理员 | ✅ |
+| manager | Manager123456 | 总经理 | ✅ |
+| finance | Finance123456 | 财务负责人 | ✅ |
+| pm | PM123456 | 项目经理 | ❌ |
+| safety | Safety123456 | 安全员 | ❌ |
+| quality | Quality123456 | 质量员 | ❌ |
+| document | Document123456 | 资料员 | ❌ |
+| staff | Staff123456 | 普通员工 | ❌ |
 
-Streamlit 多页面位于 `pages/` 目录。页面文件名使用英文以避免跨平台编码问题，但页面标题、菜单说明、表格字段和业务说明均为中文。
+## 9. API 文档地址
 
-## 数据模型
+- Swagger UI：http://localhost:8000/docs
+- 设计文档：`docs/api_design.md`
 
-模拟数据位于 `data/` 目录，统一由 `data/data_loader.py` 生成。核心模型包括：
+## 10. 前端地址
 
-- Project：项目主数据
-- Contract：合同数据
-- Cost：成本数据
-- Material：材料数据
-- Equipment：设备周材数据
-- Finance：资金、发票、保证金数据
-- Workflow：审批流程数据
-- Risk：风险预警数据
-- Document：资料档案数据
-- SafetyQuality：安全质量记录
+http://localhost:5173
 
-所有业务数据均通过 `project_id` 与项目关联。
+## 11. 已实现功能
 
-## 风险预警逻辑
+**Phase 1 + 2（系统骨架 + 项目中心）**
+- JWT 登录认证、bcrypt 密码加密、`/auth/me` 当前用户。
+- RBAC 权限体系（用户—角色—权限），接口级 + 字段级（金额脱敏）控制。
+- 项目 CRUD：列表（多条件筛选 + 分页）、新建立项表单（6 个分区 + 校验）、详情（Tabs）、编辑、删除。
+- 项目金额按角色脱敏（普通员工显示 `***`）。
+- 操作审计日志：所有写操作自动记录，系统设置与详情页可查看。
+- 决策驾驶舱：经营 KPI 汇总 + 项目状态分布。
+- 企业级前端布局：深蓝侧边栏、顶部用户/角色/退出、面包屑。
+- Docker Compose 一键运行（postgres / redis / minio / backend / frontend）。
 
-`services/risk_service.py` 实现 `calculate_project_risk(project, related_data)`，根据以下规则计算风险：
+**Phase 4A（审批流引擎）**
+- 审批流引擎：Workflow / WorkflowStep / WorkflowAction 三张表，支持 8 种流程类型（项目立项/合同/付款/成本/发票/结算/采购/报销审批）。
+- 审批动作：提交(submit) / 审批通过(approve) / 驳回(reject) / 撤回(withdraw) / 催办(urge) / 转办(transfer)，多级顺序步骤自动推进。
+- 业务联动：任一审批状态变更自动回写关联业务实体（Contract/CostRecord/Payment/Invoice/Project）的 approval_status 字段。
+- 权限矩阵：workflow:view（所有角色）/ workflow:create（PM 及以上）/ workflow:approve（财务/总经理/管理员/PM）。
+- 快捷提交 API：`POST /projects/{id}/submit-approval`、`/contracts/{id}/submit-approval`、`/payments/{id}/submit-approval`、`/costs/{id}/submit-approval`、`/invoices/{id}/submit-approval`。
+- 前端审批中心：5 个 Tab（我的待办 / 我的已办 / 我的发起 / 全部流程 / 流程配置占位）+ 审批详情 Drawer（Timeline 步骤 + 操作记录 + 审批/驳回/催办/撤回按钮）。
+- 项目详情审批记录 Tab：真实审批流列表 + 提交立项审批按钮。
+- 首页工作台：待办审批卡片、我的发起卡片、超期预警（>7 天未完成）。
+- Alembic 第一个正式迁移版本（包含所有 Phase 1–4A 表结构）。
+- 8 个新增测试（覆盖：创建流程、提交、完整审批通过、驳回、撤回、快捷提交接口、待办/发起查询、权限拦截）；全部 25 个测试通过。
 
-- 工期延期
-- 成本超预算
-- 收款进度低于产值进度 20% 以上
-- 付款异常
-- 安全隐患未闭环
-- 质量问题未闭环
-- 资料完整率低于 80%
-- 审批流程超时
+**Phase 3（合同中心 + 成本资金中心 + 业务闭环）**
+- 5 个新业务实体：合同(Contract)、成本(CostRecord)、付款(Payment)、回款(Receipt)、发票(Invoice)，均含软删除与创建/更新人追踪。
+- 合同中心：列表（多条件筛选）、分区表单（5 个区）、详情页、增删改查。
+- 成本资金中心：成本台账 / 付款 / 回款 / 发票 / 财务分析 五个 Tab，含 ECharts 图表（成本构成、回款付款趋势、利润 Top10、应收应付对比）。
+- **业务闭环**：项目 → 合同 → 成本 → 付款/回款 → 发票 → 项目财务汇总。任何财务记录变更都会实时回算项目 `contract_amount / actual_cost / paid_amount / received_amount / receivable / payable / profit / profit_margin / collection_progress / cost_ratio`。
+- 项目详情页「合同记录」「成本资金」Tab 已联动真实数据 + 项目财务汇总卡片。
+- 合同/成本/财务记录的金额继续遵循角色脱敏；财务删除仅限管理员/总经理/财务负责人，项目经理可看可编辑但不可删除。
+- 全部 create/update/delete 写入 audit_logs。
+- 种子数据：30 合同 / 80 成本 / 50 付款 / 50 回款 / 50 发票（模拟数据，按 project_id 关联）。
 
-## 权限角色说明
+## 12. 后续阶段 (Next Phases)
 
-系统通过 `st.session_state` 模拟当前角色。普通员工金额脱敏显示为 `***`；财务负责人、总经理和系统管理员可查看完整财务金额。
-
-角色包括：系统管理员、总经理、财务负责人、项目经理、采购负责人、仓库管理员、安全员、质量员、资料员、施工班组长、普通员工。
-
-## GitHub 提交方式
-
-```bash
-git init
-git add .
-git commit -m "Initial commit: HEYIYUN power engineering ERP Streamlit prototype"
-git branch -M main
-git remote add origin <your-github-repo-url>
-git push -u origin main
-```
-
-请将 `<your-github-repo-url>` 替换为你自己的 GitHub 仓库地址。
-
-## 后续升级计划
-
-- 接入真实登录、用户、角色和权限。
-- 使用 PostgreSQL/MySQL 替代 mock 数据。
-- 使用 FastAPI 提供后端接口。
-- 使用 Vue/React 构建正式前端。
-- 引入真实文件上传、对象存储和资料版本管理。
-- 接入 BPMN 审批流引擎。
-- 增加移动端、小程序、现场扫码和照片水印。
-- 增加合同、采购、成本和资金的真实业务校验。
-
-## 免责声明
-
-本项目使用模拟数据，仅用于产品原型、学习、作品集和业务方案展示，不包含真实企业敏感数据。
+- MinIO 资料档案上传（Document upload）
+- 审批工作流引擎（Workflow engine）
+- 风险预警引擎（Risk engine）
+- 采购物资 / 设备周材 / 施工现场 / 安全质量模块
+- 首个 Alembic 迁移脚本（替代开发期 create_all）
+- 前端打包体积优化（图表库按需/懒加载）
