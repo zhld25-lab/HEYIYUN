@@ -57,8 +57,6 @@ if not st.session_state.token:
         st.caption("测试账号：admin/Admin123456 · manager/Manager123456 · finance/Finance123456 · pm/PM123456")
 else:
     # ── 已登录：显示驾驶舱内容（home page） ────────────────────────────
-    sidebar_nav()
-
     import importlib
     dashboard = importlib.import_module("pages.1_📊_驾驶舱")
     dashboard.render()
