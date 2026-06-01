@@ -5,7 +5,10 @@ import os
 import requests
 import streamlit as st
 
-BASE_URL = os.getenv("ERP_API_URL", "http://localhost:8000/api/v1")
+BASE_URL = (
+    st.secrets.get("ERP_API_URL")
+    or os.getenv("ERP_API_URL", "http://localhost:8000/api/v1")
+)
 TIMEOUT = 15
 
 
