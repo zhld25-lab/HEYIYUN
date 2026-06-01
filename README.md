@@ -111,21 +111,31 @@ http://localhost:5173
 
 ## 11. 已实现功能
 
+**Phase 1 + 2（系统骨架 + 项目中心）**
 - JWT 登录认证、bcrypt 密码加密、`/auth/me` 当前用户。
 - RBAC 权限体系（用户—角色—权限），接口级 + 字段级（金额脱敏）控制。
 - 项目 CRUD：列表（多条件筛选 + 分页）、新建立项表单（6 个分区 + 校验）、详情（Tabs）、编辑、删除。
 - 项目金额按角色脱敏（普通员工显示 `***`）。
-- 操作审计日志：所有项目 create/update/delete 自动记录，系统设置与项目详情可查看。
+- 操作审计日志：所有写操作自动记录，系统设置与详情页可查看。
 - 决策驾驶舱：经营 KPI 汇总 + 项目状态分布。
 - 企业级前端布局：深蓝侧边栏、顶部用户/角色/退出、面包屑。
 - Docker Compose 一键运行（postgres / redis / minio / backend / frontend）。
 
+**Phase 3（合同中心 + 成本资金中心 + 业务闭环）**
+- 5 个新业务实体：合同(Contract)、成本(CostRecord)、付款(Payment)、回款(Receipt)、发票(Invoice)，均含软删除与创建/更新人追踪。
+- 合同中心：列表（多条件筛选）、分区表单（5 个区）、详情页、增删改查。
+- 成本资金中心：成本台账 / 付款 / 回款 / 发票 / 财务分析 五个 Tab，含 ECharts 图表（成本构成、回款付款趋势、利润 Top10、应收应付对比）。
+- **业务闭环**：项目 → 合同 → 成本 → 付款/回款 → 发票 → 项目财务汇总。任何财务记录变更都会实时回算项目 `contract_amount / actual_cost / paid_amount / received_amount / receivable / payable / profit / profit_margin / collection_progress / cost_ratio`。
+- 项目详情页「合同记录」「成本资金」Tab 已联动真实数据 + 项目财务汇总卡片。
+- 合同/成本/财务记录的金额继续遵循角色脱敏；财务删除仅限管理员/总经理/财务负责人，项目经理可看可编辑但不可删除。
+- 全部 create/update/delete 写入 audit_logs。
+- 种子数据：30 合同 / 80 成本 / 50 付款 / 50 回款 / 50 发票（模拟数据，按 project_id 关联）。
+
 ## 12. 后续阶段 (Next Phases)
 
-- 合同模块（Contract）
-- 成本资金模块（Cost & Finance）
 - MinIO 资料档案上传（Document upload）
 - 审批工作流引擎（Workflow engine）
 - 风险预警引擎（Risk engine）
-- 驾驶舱图表可视化（Dashboard charts）
 - 采购物资 / 设备周材 / 施工现场 / 安全质量模块
+- 首个 Alembic 迁移脚本（替代开发期 create_all）
+- 前端打包体积优化（图表库按需/懒加载）

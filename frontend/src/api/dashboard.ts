@@ -28,3 +28,49 @@ export async function getProjectStatus(): Promise<ProjectStatusItem[]> {
   );
   return data.data;
 }
+
+export interface DashboardFinanceSummary {
+  total_contract_amount: MaskableNumber;
+  total_actual_cost: MaskableNumber;
+  total_received: MaskableNumber;
+  total_paid: MaskableNumber;
+  total_receivable: MaskableNumber;
+  total_payable: MaskableNumber;
+  total_profit: MaskableNumber;
+}
+export interface CashflowItem {
+  month: string;
+  received: MaskableNumber;
+  paid: MaskableNumber;
+  net: MaskableNumber;
+}
+export interface CostBreakdownItem {
+  cost_type: string;
+  amount: MaskableNumber;
+}
+export interface ProjectProfitItem {
+  project_id: number;
+  project_name: string;
+  profit: MaskableNumber;
+}
+
+export async function getFinanceSummary(): Promise<DashboardFinanceSummary> {
+  const { data } = await apiClient.get<ApiResponse<DashboardFinanceSummary>>(
+    '/dashboard/finance-summary',
+  );
+  return data.data;
+}
+export async function getCashflow(): Promise<CashflowItem[]> {
+  const { data } = await apiClient.get<ApiResponse<CashflowItem[]>>('/dashboard/cashflow');
+  return data.data;
+}
+export async function getCostBreakdown(): Promise<CostBreakdownItem[]> {
+  const { data } = await apiClient.get<ApiResponse<CostBreakdownItem[]>>('/dashboard/cost-breakdown');
+  return data.data;
+}
+export async function getProjectProfitTop(): Promise<ProjectProfitItem[]> {
+  const { data } = await apiClient.get<ApiResponse<ProjectProfitItem[]>>(
+    '/dashboard/project-profit-top',
+  );
+  return data.data;
+}

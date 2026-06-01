@@ -8,6 +8,9 @@ import HomeWorkbench from '@/pages/HomeWorkbench';
 import ProjectList from '@/pages/ProjectCenter/ProjectList';
 import ProjectForm from '@/pages/ProjectCenter/ProjectForm';
 import ProjectDetail from '@/pages/ProjectCenter/ProjectDetail';
+import ContractList from '@/pages/ContractCenter/ContractList';
+import ContractDetail from '@/pages/ContractCenter/ContractDetail';
+import CostFinanceCenter from '@/pages/CostFinanceCenter';
 import SystemSettings from '@/pages/SystemSettings';
 
 export const router = createBrowserRouter([
@@ -27,6 +30,9 @@ export const router = createBrowserRouter([
       { path: 'projects/create', element: <ProjectForm /> },
       { path: 'projects/:id', element: <ProjectDetail /> },
       { path: 'projects/:id/edit', element: <ProjectForm /> },
+      { path: 'contracts', element: <ContractList /> },
+      { path: 'contracts/:id', element: <ContractDetail /> },
+      { path: 'finance', element: <CostFinanceCenter /> },
       { path: 'system', element: <SystemSettings /> },
     ],
   },

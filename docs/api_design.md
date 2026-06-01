@@ -38,6 +38,35 @@
 | GET | /dashboard/summary | 经营 KPI 汇总 | dashboard:view |
 | GET | /dashboard/project-status | 项目状态分布 | dashboard:view |
 
+## 合同 Contracts (Phase 3)
+| 方法 | 路径 | 说明 | 权限 |
+|------|------|------|------|
+| GET | /contracts | 合同列表（筛选+分页）| contract:view |
+| POST | /contracts | 新建合同 | contract:create |
+| GET | /contracts/{id} | 合同详情 | contract:view |
+| PUT | /contracts/{id} | 更新合同 | contract:update |
+| DELETE | /contracts/{id} | 删除合同（软删除）| contract:delete |
+
+## 成本/付款/回款/发票 (Phase 3)
+`/costs`、`/payments`、`/receipts`、`/invoices` 均提供 GET 列表、POST、GET/{id}、PUT/{id}、DELETE/{id}。
+读取需 `contract:view`；新增/编辑需 `finance:edit`；删除需 `finance:delete`。
+
+## 项目财务联动 (Phase 3)
+| GET | /projects/{id}/contracts | 项目下合同 | contract:view |
+| GET | /projects/{id}/costs | 项目下成本 | contract:view |
+| GET | /projects/{id}/payments | 项目下付款 | contract:view |
+| GET | /projects/{id}/receipts | 项目下回款 | contract:view |
+| GET | /projects/{id}/invoices | 项目下发票 | contract:view |
+| GET | /projects/{id}/finance-summary | 项目财务汇总 | project:view |
+
+## 驾驶舱财务 (Phase 3)
+| GET | /dashboard/finance-summary | 全局财务汇总 | dashboard:view |
+| GET | /dashboard/cashflow | 月度回款/付款/净现金流 | dashboard:view |
+| GET | /dashboard/cost-breakdown | 成本构成 | dashboard:view |
+| GET | /dashboard/project-profit-top | 项目利润 Top 10 | dashboard:view |
+
+所有金额字段对无 `finance:view` 的角色脱敏为 `***`。
+
 ## 系统 System
 | GET | /system/audit-logs | 操作日志（分页，可按 resource_type/resource_id 过滤）| audit:view |
 

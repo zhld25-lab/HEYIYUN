@@ -30,6 +30,31 @@ SENSITIVE_DASHBOARD_FIELDS = [
     "received_amount",
     "paid_amount",
     "current_profit",
+    "total_contract_amount",
+    "total_actual_cost",
+    "total_received",
+    "total_paid",
+    "total_receivable",
+    "total_payable",
+    "total_profit",
+]
+
+# Amount fields for the Phase 3 finance entities subject to masking.
+SENSITIVE_FINANCE_FIELDS = [
+    "contract_amount",
+    "settlement_amount",
+    "invoiced_amount",
+    "received_amount",
+    "paid_amount",
+    "receivable_amount",
+    "payable_amount",
+    "amount",
+    "requested_amount",
+    "receipt_amount",
+    "profit",
+    "profit_margin",
+    "target_cost",
+    "actual_cost",
 ]
 
 
@@ -57,6 +82,17 @@ def mask_dashboard_dict(data: dict, user: User) -> dict:
         return data
     result = dict(data)
     for field in SENSITIVE_DASHBOARD_FIELDS:
+        if field in result and result[field] is not None:
+            result[field] = MASK_VALUE
+    return result
+
+
+def mask_finance_dict(data: dict, user: User) -> dict:
+    """Mask amount fields on contract / cost / payment / receipt / invoice / summary."""
+    if can_view_finance(user):
+        return data
+    result = dict(data)
+    for field in SENSITIVE_FINANCE_FIELDS:
         if field in result and result[field] is not None:
             result[field] = MASK_VALUE
     return result

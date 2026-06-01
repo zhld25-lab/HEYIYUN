@@ -152,3 +152,8 @@ def seed_all(db: Session) -> None:
     users = _seed_users(db, roles)
     _seed_projects(db, users)
     db.commit()
+
+    # Phase 3: finance closed-loop demo data (idempotent).
+    from app.seed.seed_finance import seed_finance
+
+    seed_finance(db)

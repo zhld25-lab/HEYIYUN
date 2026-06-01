@@ -12,6 +12,7 @@ import MoneyText from '@/components/MoneyText';
 import PermissionGuard from '@/components/PermissionGuard';
 import { PERMISSIONS } from '@/utils/permissions';
 import { formatPercent, formatDate } from '@/utils/formatters';
+import { ContractsPanel, CostFinancePanel } from './ProjectFinancePanels';
 
 const ACTION_LABEL: Record<string, string> = {
   CREATE: '创建',
@@ -95,8 +96,8 @@ const ProjectDetail: React.FC = () => {
 
   const items = [
     { key: 'basic', label: '基本信息', children: basicInfo },
-    { key: 'contract', label: '合同记录', children: <Placeholder name="合同记录" /> },
-    { key: 'cost', label: '成本资金', children: <Placeholder name="成本资金" /> },
+    { key: 'contract', label: '合同记录', children: <ContractsPanel projectId={projectId} /> },
+    { key: 'cost', label: '成本资金', children: <CostFinancePanel projectId={projectId} /> },
     { key: 'material', label: '采购物资', children: <Placeholder name="采购物资" /> },
     { key: 'safety', label: '安全质量', children: <Placeholder name="安全质量" /> },
     { key: 'document', label: '资料档案', children: <Placeholder name="资料档案" /> },

@@ -40,6 +40,22 @@
 - profit_margin = profit / contract_amount
 - cost_ratio = actual_cost / target_cost
 
+## Phase 3 财务实体（contracts / cost_records / payments / receipts / invoices）
+
+5 张表均含公共列：`id`、`project_id`(FK)、`created_at`、`updated_at`、`created_by_id`(FK users)、`updated_by_id`(FK users)、`deleted_at`(软删除)、`status`。
+
+- **contracts**：contract_code(唯一)、contract_name、contract_type(承包/分包/采购/设备租赁/周材租赁)、party_a、party_b、contract_amount、settlement_amount、invoiced_amount、received_amount、paid_amount、receivable_amount、payable_amount、contract_status、approval_status、archive_status、signed_date、description、remarks。
+- **cost_records**：cost_code(唯一)、cost_type(10 类)、contract_id(可空)、supplier_name、amount、occurred_date、handler_name、approval_status、invoice_status、payment_status、remarks。
+- **payments**：payment_code(唯一)、contract_id(可空)、payee_name、requested_amount、paid_amount、payment_date、payment_status、approval_status、remarks。
+- **receipts**：receipt_code(唯一)、contract_id(可空)、payer_name、receipt_amount、receipt_date、planned_receipt_date、is_overdue、remarks。
+- **invoices**：invoice_code(唯一)、invoice_type、invoice_direction(进项/销项)、contract_id(可空)、amount、tax_rate、invoice_date、certification_status、remarks。
+
+### 财务回算（finance_service.recalculate）
+任一财务记录写操作后，按 project_id 重算合同级（received/paid/invoiced/receivable/payable）与项目级聚合：
+contract_amount(承包合同汇总)、actual_cost(成本汇总)、paid_amount(付款汇总)、received_amount(回款汇总)、receivable_amount、payable_amount、profit、profit_margin(profit/received)、collection_progress(received/contract，0-1)、cost_ratio(actual/target，0-1)。
+
+> 说明：collection_progress 与 cost_ratio 以 0-1 比例存储（前端 formatPercent 统一 ×100 展示），与 Phase 2 字段口径一致。
+
 ## audit_logs 审计日志表
 | id | user_id | username | action | resource_type | resource_id | detail | ip_address | created_at |
 

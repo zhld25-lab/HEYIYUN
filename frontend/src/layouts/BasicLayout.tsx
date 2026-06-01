@@ -7,6 +7,8 @@ import {
   HomeOutlined,
   LogoutOutlined,
   UserOutlined,
+  FileTextOutlined,
+  AccountBookOutlined,
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
@@ -18,12 +20,16 @@ const { Header, Sider, Content } = Layout;
 const MENU_ITEMS = [
   { key: '/dashboard', icon: <DashboardOutlined />, label: '决策驾驶舱' },
   { key: '/projects', icon: <ProjectOutlined />, label: '项目中心' },
+  { key: '/contracts', icon: <FileTextOutlined />, label: '合同中心' },
+  { key: '/finance', icon: <AccountBookOutlined />, label: '成本资金中心' },
   { key: '/system', icon: <SettingOutlined />, label: '系统设置' },
 ];
 
 const BREADCRUMB_MAP: Record<string, string> = {
   dashboard: '决策驾驶舱',
   projects: '项目中心',
+  contracts: '合同中心',
+  finance: '成本资金中心',
   create: '新建项目',
   edit: '编辑项目',
   system: '系统设置',

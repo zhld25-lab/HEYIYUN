@@ -1,15 +1,17 @@
 import React from 'react';
 import { Row, Col, Card, Statistic, Table, Spin } from 'antd';
 import { useQuery } from '@tanstack/react-query';
-import { getSummary, getProjectStatus } from '@/api/dashboard';
+import { getSummary, getProjectStatus, getFinanceSummary } from '@/api/dashboard';
 import PageHeader from '@/components/PageHeader';
 import MoneyText from '@/components/MoneyText';
 
 const Dashboard: React.FC = () => {
   const summaryQuery = useQuery({ queryKey: ['dashboard-summary'], queryFn: getSummary });
   const statusQuery = useQuery({ queryKey: ['dashboard-status'], queryFn: getProjectStatus });
+  const financeQuery = useQuery({ queryKey: ['dashboard-finance'], queryFn: getFinanceSummary });
 
   const s = summaryQuery.data;
+  const f = financeQuery.data;
 
   return (
     <div>
@@ -68,6 +70,33 @@ const Dashboard: React.FC = () => {
                 value={s?.high_risk_count ?? 0}
                 valueStyle={{ color: '#cf1322' }}
               />
+            </Card>
+          </Col>
+        </Row>
+
+        <Row gutter={[16, 16]} style={{ marginTop: 4 }}>
+          <Col xs={24} sm={12} lg={6}>
+            <Card className="kpi-card">
+              <div className="ant-statistic-title">累计实际成本</div>
+              <div className="kpi-money"><MoneyText value={f?.total_actual_cost} /></div>
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <Card className="kpi-card">
+              <div className="ant-statistic-title">应收款合计</div>
+              <div className="kpi-money"><MoneyText value={f?.total_receivable} /></div>
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <Card className="kpi-card">
+              <div className="ant-statistic-title">应付款合计</div>
+              <div className="kpi-money"><MoneyText value={f?.total_payable} /></div>
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <Card className="kpi-card">
+              <div className="ant-statistic-title">利润合计</div>
+              <div className="kpi-money"><MoneyText value={f?.total_profit} /></div>
             </Card>
           </Col>
         </Row>
