@@ -14,3 +14,12 @@ Thumbs.db
 .streamlit/secrets.toml
 exports/
 
+# Node / frontend
+node_modules/
+frontend/dist/
+.vite/
+
+# Backend build artifacts
+backend/.venv/
+*.sqlite3
+

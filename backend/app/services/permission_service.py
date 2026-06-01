@@ -1,0 +1,62 @@
+from __future__ import annotations
+
+"""Permission helpers including financial field masking.
+
+Mirrors the masking behaviour from the legacy Streamlit prototype
+(legacy_streamlit/services/permission_service.py): users without the
+``finance:view`` permission see sensitive amounts as ``***``.
+"""
+
+from app.core.permissions import PERM_FINANCE_VIEW
+from app.models.user import User
+
+MASK_VALUE = "***"
+
+# Project financial fields subject to masking.
+SENSITIVE_PROJECT_FIELDS = [
+    "contract_amount",
+    "target_cost",
+    "actual_cost",
+    "received_amount",
+    "paid_amount",
+    "receivable_amount",
+    "payable_amount",
+    "profit",
+    "profit_margin",
+]
+
+SENSITIVE_DASHBOARD_FIELDS = [
+    "contract_amount",
+    "received_amount",
+    "paid_amount",
+    "current_profit",
+]
+
+
+def has_permission(user: User, code: str) -> bool:
+    return code in user.permission_codes
+
+
+def can_view_finance(user: User) -> bool:
+    return has_permission(user, PERM_FINANCE_VIEW)
+
+
+def mask_project_dict(data: dict, user: User) -> dict:
+    """Replace sensitive amounts with *** when the user lacks finance access."""
+    if can_view_finance(user):
+        return data
+    result = dict(data)
+    for field in SENSITIVE_PROJECT_FIELDS:
+        if field in result and result[field] is not None:
+            result[field] = MASK_VALUE
+    return result
+
+
+def mask_dashboard_dict(data: dict, user: User) -> dict:
+    if can_view_finance(user):
+        return data
+    result = dict(data)
+    for field in SENSITIVE_DASHBOARD_FIELDS:
+        if field in result and result[field] is not None:
+            result[field] = MASK_VALUE
+    return result
